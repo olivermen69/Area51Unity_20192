@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using _20191128_MyHangManGame.Entity;
 
 namespace _20191128_MyHangManGame
 {
@@ -10,7 +11,61 @@ namespace _20191128_MyHangManGame
     {
         static void Main(string[] args)
         {
-            docFunction();
+            //docFunction();
+            docFunctionObject();
+            
+
+        }
+
+        static void docFunctionObject()
+        {
+            GameManager gameManager = new GameManager();
+            Player player = new Player();
+            Board board = new Board();
+
+            gameManager.SetSecretWord("lapTop");
+
+            while (gameManager.isPlaying)
+            {
+                board.Clear();
+                board.Draw(player.Life());
+
+                //OPTION2
+                if (player.IsDead()) {
+                    board.BeepStarWars();
+                    board.Draw("GAME OVER!!!");
+                    break;
+                }
+
+                if (gameManager.IsWin())
+                {
+                    board.BeepMario();
+                    board.Draw("YOU WIN!!!");
+                    break;
+                }
+
+                board.Draw(gameManager.publicWord);
+                string letter = player.EnterWord();
+                if (gameManager.CheckLetter(letter))
+                {
+                    gameManager.UpdatePublicWord(letter);
+                }
+                else
+                {
+                    player.Damage();
+                }
+                
+                //OPTION1
+                //if (player.IsDead()) {
+                //    gameManager.isPlaying = false;
+                //}
+            }
+
+            //OPTION1
+            //board.Clear();
+            //board.Draw(player.Life());
+            //board.Draw("GAME OVER!!!");
+            board.Close();
         }
 
         static void docFunction()
