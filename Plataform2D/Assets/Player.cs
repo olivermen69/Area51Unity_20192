@@ -4,20 +4,45 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    static public Player instance;
+
+    static public void SetPosition(Vector3 pos) {
+        pos.z = 0;
+        instance.transform.position = pos;
+    }
+
+    static public Vector3 SetPropPosition {
+        set {
+            Vector3 pos = value;
+            pos.z = 0;
+            instance.transform.position = pos;
+        }
+    }
+
+    static public Transform SetPropPosition2 {
+        set {
+            Vector3 pos = value.position;
+            pos.z = 0;
+            instance.transform.position = pos;
+        }
+    }
+
     [SerializeField]
     private SpriteRenderer spriteRenderer;
     public Rigidbody2D rigidbody2D;
+    private bool onGround = false;
 
     public float speed = 1f;
     public Animator animator;
     public Color playerColorMorado;
     private Color playerColorInit;
     //public Animator animator2;
+    private Vector3 startPos;
 
     public bool grounded {        
         get {
             //return rigidbody2D.velocity.y == 0;
-            return RoundAbsoluteToZero(rigidbody2D.velocity.y) == 0;
+            return RoundAbsoluteToZero(rigidbody2D.velocity.y) == 0 || onGround;
         }
     }
 
@@ -70,6 +95,21 @@ public class Player : MonoBehaviour
 
 
         //Debug.Log(rigidbody2D.velocity);
+    }
+
+    void onCollisionEnter2d(Collision2D col) {
+        if (col.gameObject.tag == "DeathZone") {
+            transform.position = startPos;
+        }
+        if (col.gameObject.tag == "Floor") {
+            onGround = true;
+        }
+    }
+
+    void onCollisionExit2d(Collision2D col) {
+        if (col.gameObject.tag == "Floor") {
+            onGround = false;
+        }
     }
 
     void MyTranslate(Vector3 translateVector) {
