@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
-{
+public class Player : MonoBehaviour {
     static public Player instance;
 
     static public void SetPosition(Vector3 pos) {
@@ -32,12 +31,34 @@ public class Player : MonoBehaviour
     public Rigidbody2D rigidbody2D;
     private bool onGround = false;
 
+    [SerializeField]
+    private HealthBar healthBarPLayer;
+
     public float speed = 1f;
     public Animator animator;
     public Color playerColorMorado;
     private Color playerColorInit;
     //public Animator animator2;
     private Vector3 startPos;
+
+    public float maxLife = 50f;
+    public float _currentLife;
+
+    public float CurrentLife {
+        set {
+            float newCurrentLife = Mathf.Clamp(value, 0, maxLife);
+            this._currentLife = newCurrentLife;
+        }
+        get {
+            return this._currentLife;
+        }
+    }
+
+    static public HealthBar HealthBarPLayer {
+        set {
+            instance.healthBarPLayer = value;
+        }
+    }
 
     public bool grounded {        
         get {
@@ -46,9 +67,15 @@ public class Player : MonoBehaviour
         }
     }
 
+    void Awake() {
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        startPos = transform.position;
         // https://github.com/sparklinlabs/superpowers-asset-packs/tree/master/prehistoric-platformer
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigidbody2D = GetComponent<Rigidbody2D>();
@@ -92,6 +119,9 @@ public class Player : MonoBehaviour
         if (grounded && Input.GetKeyDown(KeyCode.Space))
             rigidbody2D.AddForce(Vector2.up * 5, ForceMode2D.Impulse);
 
+        if (Input.GetKeyDown(KeyCode.O)) TakeDamage(1);
+        if (Input.GetKeyDown(KeyCode.P)) Heal(1);
+
 
 
         //Debug.Log(rigidbody2D.velocity);
@@ -123,6 +153,16 @@ public class Player : MonoBehaviour
             decimalValue = 0f;
         }
         return decimalValue;
+    }
+
+    void TakeDamage(float damage) {
+        CurrentLife -= damage;
+        healthBarPLayer.CurrentLife = CurrentLife;
+    }
+
+    void Heal(float damage) {
+        CurrentLife += damage;
+        healthBarPLayer.CurrentLife = CurrentLife;
     }
 
     //LateUpdate -> despues del update
